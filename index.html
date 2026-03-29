@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roshan Academy Quiz App</title>
+    <link rel="icon" type="image/x-icon" href="images/Faviocn.ico" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .progress-container {
+        width: 100%;
+        background-color: #e0e0e0;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+      }
+      .progress-bar {
+        height: 10px;
+        width: 0%;
+        background-color: #3b82f6;
+        border-radius: 8px;
+        transition: width 0.3s ease-in-out;
+      }
+      #timer-display {
+        font-weight: bold;
+        transition: color 0.3s;
+      }
+      .timer-low {
+        color: #ef4444;
+        animation: pulse 1s infinite;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      /* Medal Styles gold,silver,bronze in final screen */
+      .medal-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        display: inline-block;
+        animation: bounce 1s ease infinite;
+      }
+      .gold {
+        color: #ffd700;
+        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+      }
+      .silver {
+        color: #c0c0c0;
+        text-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
+      }
+      .bronze {
+        color: #cd7f32;
+        text-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
+      }
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat"
+    style="background-image: url(&quot;images/Quiz Background.jpg&quot;)"
+  >
+    <div class="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+      <h1 class="text-2xl font-bold text-center mb-4">
+        Maharashtra Board Quiz App
+      </h1>
+
+      <div id="selection-screen" class="mb-4">
+        <label class="block text-sm font-medium text-gray-700"
+          >Select Standard:</label
+        >
+        <select
+          id="standard"
+          class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
+        >
+          <option value="">Select Standard</option>
+          <option value="1">1st Standard</option>
+          <option value="2">2nd Standard</option>
+          <option value="3">3rd Standard</option>
+          <option value="4">4th Standard</option>
+          <option value="5">5th Standard</option>
+          <option value="6">6th Standard</option>
+          <option value="7">7th Standard</option>
+          <option value="8">8th Standard</option>
+          <option value="9">9th Standard</option>
+          <option value="10">10th Standard</option>
+        </select>
+      
+        <div class="mb-4">
+    <label class="block text-sm font-medium text-gray-700">Select Subject:</label>
+    <select id="subject" class="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white">
+        <option value="">Select Subject</option>
+    <!-- </select> -->
+
+        <label class="block text-sm font-medium text-gray-700 mt-4"
+          >Select Subject:</label
+        >
+        btns.forEach(b => { b.disabled = true; if (b.textContent === q.answer) {
+        b.innerHTML += '
+        <i class="fas fa-check-circle float-right text-green-600"></i>';
+        b.classList.add("border-green-500", "bg-green-50"); } if (b.textContent
+        === selected && selected !== q.answer) { b.innerHTML += '
+        <i class="fas fa-times-circle float-right text-red-600"></i>';
+        b.classList.add("border-red-500", "bg-red-50"); } });
+        </select>
+
+        </div>
+
+        <button
+          id="start-quiz"
+          class="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+        >
+          Start Quiz
+        </button>
+        <p
+          id="selection-feedback"
+          class="mt-4 text-center text-red-500"
+          aria-live="polite"
+        ></p>
+      </div>
+
+      <div id="quiz-screen" class="hidden">
+        <div class="progress-container mb-4">
+          <div id="progress-bar" class="progress-bar"></div>
+        </div>
+        <div class="flex justify-between items-center mb-4">
+          <h2 id="question" class="text-lg font-semibold pr-4"></h2>
+          <span
+            id="timer-display"
+            class="text-blue-600 font-mono font-bold text-xl min-w-[50px] text-right"
+            >30s</span
+          >
+        </div>
+        <div id="options" class="space-y-2"></div>
+        <button
+          id="next-question"
+          class="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 hidden"
+        >
+          Next Question
+        </button>
+        <p
+          id="quiz-feedback"
+          class="mt-4 text-center font-bold"
+          aria-live="polite"
+        ></p>
+      </div>
+
+      <div id="result-screen" class="hidden text-center">
+        <div id="medal-container"></div>
+        <h2 class="text-xl font-bold mb-2">Quiz Completed!</h2>
+        <p id="result-text" class="mb-4"></p>
+        <p id="high-score-msg" class="text-blue-600 font-bold mb-4 hidden">
+          🎉 New High Score! 🎉
+        </p>
+        <button
+          id="restart-quiz"
+          class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
+        >
+          Restart Quiz
+        </button>
+      </div>
+    </div>
+    <script src="quizData.js"></script>
+
+    <script src="script.js"></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        
+        // DOM Elements
+        const selectionScreen = document.getElementById("selection-screen");
+        const standardSelect = document.getElementById("standard");
+        const subjectSelect = document.getElementById("subject");
+        const quizScreen = document.getElementById("quiz-screen");
+        const resultScreen = document.getElementById("result-screen");
+        const progressBar = document.getElementById("progress-bar");
+        const timerDisplay = document.getElementById("timer-display");
+        const startQuizButton = document.getElementById("start-quiz");
+        const nextQuestionButton = document.getElementById("next-question");
+        const restartQuizButton = document.getElementById("restart-quiz");
+        const questionElement = document.getElementById("question");
+        const optionsElement = document.getElementById("options");
+        const selectionFeedback = document.getElementById("selection-feedback");
+        const quizFeedback = document.getElementById("quiz-feedback");
+        const resultText = document.getElementById("result-text");
+
+        let currentStandard = "";
+        let currentSubject = "";
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let questions = [];
+        let timer;
+
+        startQuizButton.addEventListener("click", () => {
+          currentStandard = standardSelect.value;
+          currentSubject = subjectSelect.value;
+
+          if (!currentStandard || !currentSubject) {
+            selectionFeedback.textContent =
+              "Please select both standard and subject.";
+            return;
+          }
+
+          questions = quizData[currentStandard][currentSubject] || [];
+
+          if (questions.length === 0) {
+            selectionFeedback.textContent =
+              "No questions found for this selection.";
+            return;
+          }
+
+          questions = questions.sort(() => Math.random() - 0.5);
+          currentQuestionIndex = 0;
+          score = 0;
+
+          selectionScreen.classList.add("hidden");
+          quizScreen.classList.remove("hidden");
+          showQuestion();
+        });
+
+        function showQuestion() {
+          const q = questions[currentQuestionIndex];
+          progressBar.style.width =
+            (currentQuestionIndex / questions.length) * 100 + "%";
+          questionElement.textContent = `Q${currentQuestionIndex + 1}: ${q.question}`;
+          optionsElement.innerHTML = "";
+
+          q.options.forEach((opt) => {
+            const btn = document.createElement("button");
+            btn.textContent = opt;
+            btn.className =
+              "w-full p-2 border border-gray-300 rounded-md hover:bg-gray-100 text-left transition-all";
+            btn.onclick = () => checkAnswer(opt);
+            optionsElement.appendChild(btn);
+          });
+
+          quizFeedback.textContent = "";
+          nextQuestionButton.classList.add("hidden");
+          startTimer();
+        }
+
+        function startTimer() {
+          let timeLeft = 30;
+          timerDisplay.textContent = timeLeft + "s";
+          timerDisplay.classList.remove("timer-low");
+          clearInterval(timer);
+          timer = setInterval(() => {
+            timeLeft--;
+            timerDisplay.textContent = timeLeft + "s";
+            if (timeLeft <= 5) timerDisplay.classList.add("timer-low");
+            if (timeLeft <= 0) {
+              clearInterval(timer);
+              checkAnswer(null);
+            }
+          }, 1000);
+        }
+
+        function checkAnswer(selected) {
+          clearInterval(timer);
+          const q = questions[currentQuestionIndex];
+          const btns = optionsElement.querySelectorAll("button");
+          btns.forEach((b) => {
+            b.disabled = true;
+            if (b.textContent === q.answer) {
+              b.innerHTML +=
+                ' <i class="fas fa-check-circle float-right text-green-600"></i>';
+              b.classList.add("border-green-500", "bg-green-50");
+            }
+            if (b.textContent === selected && selected !== q.answer) {
+              b.innerHTML +=
+                ' <i class="fas fa-times-circle float-right text-red-600"></i>';
+              b.classList.add("border-red-500", "bg-red-50");
+            }
+          });
+          if (selected === q.answer) {
+            score++;
+            quizFeedback.textContent = "Correct!";
+            quizFeedback.className =
+              "mt-4 text-center font-bold text-green-500";
+          } else {
+            quizFeedback.textContent = `Wrong! Answer: ${q.answer}`;
+            quizFeedback.className = "mt-4 text-center font-bold text-red-500";
+          }
+          nextQuestionButton.classList.remove("hidden");
+        }
+
+        nextQuestionButton.addEventListener("click", () => {
+          currentQuestionIndex++;
+          if (currentQuestionIndex < questions.length) showQuestion();
+          else showResult();
+        });
+
+        function showResult() {
+          progressBar.style.width = "100%";
+          quizScreen.classList.add("hidden");
+          resultScreen.classList.remove("hidden");
+
+          const percent = (score / questions.length) * 100;
+          const medalContainer = document.getElementById("medal-container");
+          const highMsg = document.getElementById("high-score-msg");
+
+          let medal = '<i class="fas fa-star text-gray-300 medal-icon"></i>',
+            msg = "Keep Trying!";
+          if (percent === 100) {
+            medal = '<i class="fas fa-medal medal-icon gold"></i>';
+            msg = "Genius!";
+          } else if (percent >= 80) {
+            medal = '<i class="fas fa-medal medal-icon silver"></i>';
+            msg = "Excellent!";
+          } else if (percent >= 50) {
+            medal = '<i class="fas fa-medal medal-icon bronze"></i>';
+            msg = "Good Job!";
+          }
+
+          medalContainer.innerHTML = medal;
+          resultText.innerHTML = `${msg}<br><span class="text-2xl font-bold">${score} / ${questions.length}</span>`;
+
+          const key = `high_${currentStandard}_${currentSubject}`;
+          if (score > (localStorage.getItem(key) || 0)) {
+            localStorage.setItem(key, score);
+            highMsg.classList.remove("hidden");
+          } else {
+            highMsg.classList.add("hidden");
+          }
+        }
+
+        restartQuizButton.addEventListener("click", () => {
+          resultScreen.classList.add("hidden");
+          selectionScreen.classList.remove("hidden");
+          standardSelect.value = "";
+          subjectSelect.value = "";
+          selectionFeedback.textContent = "";
+        });
+
+        standardSelect.addEventListener("change", () => {
+          const selectedStd = standardSelect.value;
+          subjectSelect.innerHTML = '<option value="">Select Subject</option>';
+
+          if (selectedStd && quizData[selectedStd]) {
+            Object.keys(quizData[selectedStd]).forEach((subject) => {
+              const opt = document.createElement("option");
+              opt.value = subject;
+              opt.textContent = subject;
+              subjectSelect.appendChild(opt);
+            });
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
