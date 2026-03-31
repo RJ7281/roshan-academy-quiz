@@ -4,361 +4,275 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roshan Academy Quiz App</title>
-    <link rel="icon" type="image/x-icon" href="Faviocn.ico" />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
+    <link rel="icon" type="image/x-icon" href="images/Faviocn.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      .progress-container {
-        width: 100%;
-        background-color: #e0e0e0;
-        border-radius: 8px;
-        margin-bottom: 1rem;
-      }
-      .progress-bar {
-        height: 10px;
-        width: 0%;
-        background-color: #3b82f6;
-        border-radius: 8px;
-        transition: width 0.3s ease-in-out;
-      }
-      #timer-display {
-        font-weight: bold;
-        transition: color 0.3s;
-      }
-      .timer-low {
-        color: #ef4444;
-        animation: pulse 1s infinite;
-      }
-      @keyframes pulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
-      }
-
-      /* Medal Styles gold,silver,bronze in final screen */
-      .medal-icon {
-        font-size: 4rem;
-        margin-bottom: 1rem;
-        display: inline-block;
-        animation: bounce 1s ease infinite;
-      }
-      .gold {
-        color: #ffd700;
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-      }
-      .silver {
-        color: #c0c0c0;
-        text-shadow: 0 0 10px rgba(192, 192, 192, 0.5);
-      }
-      .bronze {
-        color: #cd7f32;
-        text-shadow: 0 0 10px rgba(205, 127, 50, 0.5);
-      }
-      @keyframes bounce {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-10px);
-        }
-      }
+      .hidden { display: none !important; }
+      .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 8px; margin-bottom: 1rem; }
+      .progress-bar { height: 10px; width: 0%; background-color: #3b82f6; border-radius: 8px; transition: width 0.3s ease-in-out; }
+      #timer-display { font-weight: bold; }
+      .timer-low { color: #ef4444; animation: pulse 1s infinite; }
+      @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+      .medal-icon { font-size: 4rem; margin-bottom: 1rem; display: inline-block; animation: bounce 1s ease infinite; }
+      @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+      .gold { color: #ffd700; } .silver { color: #c0c0c0; } .bronze { color: #cd7f32; }
     </style>
   </head>
-  <body class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed" 
-      style="background-image: url('Quiz Background.jpg');">
-  >
-    <div class="bg-white/90 backdrop-blur-sm p-6 rounded-lg shadow-xl w-full max-w-md mx-4">
-      <h1 class="text-2xl font-bold text-center mb-4">
-        Maharashtra Board Quiz App
-      </h1>
+  <body class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('images/Quiz Background.jpg')">
+    <div class="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md mx-4 my-10">
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Roshan Academy</h1>
 
-      <div id="selection-screen" class="mb-4">
-        <label class="block text-sm font-medium text-gray-700"
-          >Select Standard:</label
-        >
-        <select
-          id="standard"
-          class="mt-1 block w-full p-2 border border-gray-300 rounded-md"
-        >
+      <div id="auth-screen" class="space-y-4">
+        <input type="text" id="auth-name" placeholder="Full Name" class="w-full p-3 border rounded-lg" />
+        <input type="email" id="auth-email" placeholder="Email" class="w-full p-3 border rounded-lg" />
+        <input type="password" id="auth-password" placeholder="Password" class="w-full p-3 border rounded-lg" />
+        <div class="flex gap-3">
+          <button id="login-btn" class="flex-1 bg-blue-600 text-white p-3 rounded-lg font-bold">Login</button>
+          <button id="signup-btn" class="flex-1 bg-gray-200 text-gray-700 p-3 rounded-lg font-bold">Register</button>
+        </div>
+        <p id="auth-message" class="text-red-500 text-sm text-center"></p>
+      </div>
+
+      <div id="selection-screen" class="hidden space-y-4">
+        <div class="flex justify-between items-center">
+          <span id="welcome-user" class="text-sm font-bold text-blue-600"></span>
+          <button id="logout-btn" class="text-sm text-red-500 font-bold"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+        <select id="standard" class="w-full p-3 border rounded-lg">
           <option value="">Select Standard</option>
-          <option value="1">1st Standard</option>
-          <option value="2">2nd Standard</option>
-          <option value="3">3rd Standard</option>
-          <option value="4">4th Standard</option>
-          <option value="5">5th Standard</option>
-          <option value="6">6th Standard</option>
-          <option value="7">7th Standard</option>
-          <option value="8">8th Standard</option>
-          <option value="9">9th Standard</option>
-          <option value="10">10th Standard</option>
+          <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th Standard</option>`);</script>
         </select>
-      
-        <div class="mb-4">
-    <label class="block text-sm font-medium text-gray-700">Select Subject:</label>
-    <select id="subject" class="mt-1 block w-full p-2 border border-gray-300 rounded-md bg-white">
-        <option value="">Select Subject</option>
-    <!-- </select> -->
+        <input type="text" id="subject-input" placeholder="Enter Subject (e.g. Science)" class="w-full p-3 border rounded-lg" />
+        <button id="start-quiz" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold uppercase">Start Quiz</button>
+        
+        <div id="admin-link-container" class="hidden pt-4 border-t text-center">
+          <button id="go-to-admin" class="text-xs text-gray-400 hover:text-blue-500 transition"><i class="fas fa-lock"></i> Admin Panel</button>
+        </div>
+      </div>
 
-        <label class="block text-sm font-medium text-gray-700 mt-4"
-          >Select Subject:</label
-        >
-        btns.forEach(b => { b.disabled = true; if (b.textContent === q.answer) {
-        b.innerHTML += '
-        <i class="fas fa-check-circle float-right text-green-600"></i>';
-        b.classList.add("border-green-500", "bg-green-50"); } if (b.textContent
-        === selected && selected !== q.answer) { b.innerHTML += '
-        <i class="fas fa-times-circle float-right text-red-600"></i>';
-        b.classList.add("border-red-500", "bg-red-50"); } });
-        </select>
-
+      <div id="admin-screen" class="hidden space-y-6">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold">Admin Panel</h2>
+          <button id="admin-back" class="text-blue-600 text-sm">Back</button>
+        </div>
+        
+        <div class="bg-gray-100 p-4 rounded-lg">
+          <button onclick="exportToExcel()" class="w-full bg-green-600 text-white p-3 rounded-lg font-bold"><i class="fas fa-file-excel"></i> Export Results</button>
         </div>
 
-        <button
-          id="start-quiz"
-          class="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
-        >
-          Start Quiz
-        </button>
-        <p
-          id="selection-feedback"
-          class="mt-4 text-center text-red-500"
-          aria-live="polite"
-        ></p>
+        <div class="space-y-2 border-t pt-4">
+          <h3 class="font-bold text-gray-700">Add New Question</h3>
+          <select id="q-std" class="w-full p-2 border rounded"><option value="10">10th Std</option></select>
+          <input type="text" id="q-sub" placeholder="Subject" class="w-full p-2 border rounded" />
+          <input type="text" id="q-text" placeholder="Question Text" class="w-full p-2 border rounded" />
+          <div class="grid grid-cols-2 gap-2">
+            <input type="text" id="q-o1" placeholder="Opt 1" class="p-2 border rounded" />
+            <input type="text" id="q-o2" placeholder="Opt 2" class="p-2 border rounded" />
+            <input type="text" id="q-o3" placeholder="Opt 3" class="p-2 border rounded" />
+            <input type="text" id="q-o4" placeholder="Opt 4" class="p-2 border rounded" />
+          </div>
+          <input type="text" id="q-ans" placeholder="Correct Answer (Match exact text)" class="w-full p-2 border rounded bg-blue-50" />
+          <button id="add-q-btn" class="w-full bg-blue-600 text-white p-2 rounded font-bold">Save Question</button>
+        </div>
+
+        <div class="border-t pt-4">
+            <h3 class="font-bold text-gray-700 mb-2">Existing Questions</h3>
+            <div id="admin-q-list" class="max-h-60 overflow-y-auto space-y-2 text-xs"></div>
+        </div>
       </div>
 
       <div id="quiz-screen" class="hidden">
-        <div class="progress-container mb-4">
-          <div id="progress-bar" class="progress-bar"></div>
-        </div>
+        <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
         <div class="flex justify-between items-center mb-4">
-          <h2 id="question" class="text-lg font-semibold pr-4"></h2>
-          <span
-            id="timer-display"
-            class="text-blue-600 font-mono font-bold text-xl min-w-[50px] text-right"
-            >30s</span
-          >
+          <h2 id="question" class="text-lg font-bold text-gray-800"></h2>
+          <span id="timer-display" class="text-2xl font-bold">30s</span>
         </div>
-        <div id="options" class="space-y-2"></div>
-        <button
-          id="next-question"
-          class="mt-4 w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600 hidden"
-        >
-          Next Question
-        </button>
-        <p
-          id="quiz-feedback"
-          class="mt-4 text-center font-bold"
-          aria-live="polite"
-        ></p>
+        <div id="options" class="grid gap-3"></div>
+        <button id="next-question" class="mt-6 w-full bg-blue-600 text-white p-3 rounded-lg font-bold hidden">Next</button>
       </div>
 
       <div id="result-screen" class="hidden text-center">
         <div id="medal-container"></div>
-        <h2 class="text-xl font-bold mb-2">Quiz Completed!</h2>
-        <p id="result-text" class="mb-4"></p>
-        <p id="high-score-msg" class="text-blue-600 font-bold mb-4 hidden">
-          🎉 New High Score! 🎉
-        </p>
-        <button
-          id="restart-quiz"
-          class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600"
-        >
-          Restart Quiz
-        </button>
+        <h2 class="text-2xl font-bold mb-2">Finished!</h2>
+        <p id="result-text" class="text-lg mb-6"></p>
+        <button id="restart-quiz" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold">Home</button>
       </div>
     </div>
-    <script src="quizData.js"></script>
 
-    <script src="script.js"></script>
-    <script>
+    <script type="module">
+      import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCnY-wJzabkuvFD5v1eUpZyY_Gx0FPv4zI",
+        authDomain: "roshan-academy.firebaseapp.com",
+        projectId: "roshan-academy",
+        storageBucket: "roshan-academy.firebasestorage.app",
+        messagingSenderId: "644092003401",
+        appId: "1:644092003401:web:f195aab704a3280ecb6b98",
+      };
+
+      const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const ADMIN_EMAIL = "rkjha7281@gmail.com";
+
       document.addEventListener("DOMContentLoaded", () => {
-        
-        // DOM Elements
-        const selectionScreen = document.getElementById("selection-screen");
-        const standardSelect = document.getElementById("standard");
-        const subjectSelect = document.getElementById("subject");
-        const quizScreen = document.getElementById("quiz-screen");
-        const resultScreen = document.getElementById("result-screen");
-        const progressBar = document.getElementById("progress-bar");
-        const timerDisplay = document.getElementById("timer-display");
-        const startQuizButton = document.getElementById("start-quiz");
-        const nextQuestionButton = document.getElementById("next-question");
-        const restartQuizButton = document.getElementById("restart-quiz");
-        const questionElement = document.getElementById("question");
-        const optionsElement = document.getElementById("options");
-        const selectionFeedback = document.getElementById("selection-feedback");
-        const quizFeedback = document.getElementById("quiz-feedback");
-        const resultText = document.getElementById("result-text");
+        const authScreen = document.getElementById("auth-screen"), selectionScreen = document.getElementById("selection-screen");
+        const adminScreen = document.getElementById("admin-screen"), quizScreen = document.getElementById("quiz-screen"), resultScreen = document.getElementById("result-screen");
+        let questions = [], currentIdx = 0, score = 0, timer;
 
-        let currentStandard = "";
-        let currentSubject = "";
-        let currentQuestionIndex = 0;
-        let score = 0;
-        let questions = [];
-        let timer;
-
-        startQuizButton.addEventListener("click", () => {
-          currentStandard = standardSelect.value;
-          currentSubject = subjectSelect.value;
-
-          if (!currentStandard || !currentSubject) {
-            selectionFeedback.textContent =
-              "Please select both standard and subject.";
-            return;
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            authScreen.classList.add("hidden"); selectionScreen.classList.remove("hidden");
+            document.getElementById("welcome-user").textContent = "Hi, " + user.displayName;
+            if (user.email === ADMIN_EMAIL) {
+                document.getElementById("admin-link-container").classList.remove("hidden");
+                loadAdminQuestions();
+            }
+          } else {
+            authScreen.classList.remove("hidden"); selectionScreen.classList.add("hidden");
           }
-
-          questions = quizData[currentStandard][currentSubject] || [];
-
-          if (questions.length === 0) {
-            selectionFeedback.textContent =
-              "No questions found for this selection.";
-            return;
-          }
-
-          questions = questions.sort(() => Math.random() - 0.5);
-          currentQuestionIndex = 0;
-          score = 0;
-
-          selectionScreen.classList.add("hidden");
-          quizScreen.classList.remove("hidden");
-          showQuestion();
         });
 
+        // Login & Signup
+        document.getElementById("login-btn").onclick = async () => {
+          try { await signInWithEmailAndPassword(auth, document.getElementById("auth-email").value, document.getElementById("auth-password").value); }
+          catch(e) { alert("Login Failed"); }
+        };
+
+        document.getElementById("signup-btn").onclick = async () => {
+          const name = document.getElementById("auth-name").value;
+          try {
+            const res = await createUserWithEmailAndPassword(auth, document.getElementById("auth-email").value, document.getElementById("auth-password").value);
+            await updateProfile(res.user, { displayName: name });
+            location.reload();
+          } catch(e) { alert(e.message); }
+        };
+
+        document.getElementById("logout-btn").onclick = () => auth.signOut();
+        document.getElementById("go-to-admin").onclick = () => { selectionScreen.classList.add("hidden"); adminScreen.classList.remove("hidden"); };
+        document.getElementById("admin-back").onclick = () => { adminScreen.classList.add("hidden"); selectionScreen.classList.remove("hidden"); };
+
+        // ADMIN: Add Question
+        document.getElementById("add-q-btn").onclick = async () => {
+          const qData = {
+            std: document.getElementById("q-std").value,
+            sub: document.getElementById("q-sub").value.toLowerCase().trim(),
+            question: document.getElementById("q-text").value,
+            options: [document.getElementById("q-o1").value, document.getElementById("q-o2").value, document.getElementById("q-o3").value, document.getElementById("q-o4").value],
+            answer: document.getElementById("q-ans").value,
+            createdAt: serverTimestamp()
+          };
+          await addDoc(collection(db, "questions"), qData);
+          alert("Question Saved!");
+          loadAdminQuestions();
+        };
+
+        async function loadAdminQuestions() {
+            const snap = await getDocs(collection(db, "questions"));
+            const list = document.getElementById("admin-q-list");
+            list.innerHTML = "";
+            snap.forEach(qDoc => {
+                const d = qDoc.data();
+                const item = document.createElement("div");
+                item.className = "flex justify-between items-center bg-white p-2 border rounded";
+                item.innerHTML = `<span>${d.question.substring(0,30)}...</span><button class="text-red-500" data-id="${qDoc.id}">Delete</button>`;
+                item.querySelector("button").onclick = async (e) => {
+                    await deleteDoc(doc(db, "questions", e.target.dataset.id));
+                    loadAdminQuestions();
+                };
+                list.appendChild(item);
+            });
+        }
+
+        // QUIZ LOGIC
+        document.getElementById("start-quiz").onclick = async () => {
+          const std = document.getElementById("standard").value;
+          const sub = document.getElementById("subject-input").value.toLowerCase().trim();
+          if(!std || !sub) return alert("Select Std and Subject");
+          
+          const qry = query(collection(db, "questions"), where("std", "==", std), where("sub", "==", sub));
+          const snap = await getDocs(qry);
+          questions = [];
+          snap.forEach(d => questions.push(d.data()));
+          
+          if(questions.length === 0) return alert("No questions found for this subject.");
+          
+          currentIdx = 0; score = 0;
+          selectionScreen.classList.add("hidden"); quizScreen.classList.remove("hidden");
+          showQuestion();
+        };
+
         function showQuestion() {
-          const q = questions[currentQuestionIndex];
-          progressBar.style.width =
-            (currentQuestionIndex / questions.length) * 100 + "%";
-          questionElement.textContent = `Q${currentQuestionIndex + 1}: ${q.question}`;
-          optionsElement.innerHTML = "";
-
-          q.options.forEach((opt) => {
-            const btn = document.createElement("button");
-            btn.textContent = opt;
-            btn.className =
-              "w-full p-2 border border-gray-300 rounded-md hover:bg-gray-100 text-left transition-all";
-            btn.onclick = () => checkAnswer(opt);
-            optionsElement.appendChild(btn);
+          const q = questions[currentIdx];
+          document.getElementById("progress-bar").style.width = (currentIdx / questions.length) * 100 + "%";
+          document.getElementById("question").textContent = q.question;
+          const optBox = document.getElementById("options");
+          optBox.innerHTML = "";
+          q.options.forEach(opt => {
+            const b = document.createElement("button");
+            b.textContent = opt;
+            b.className = "w-full p-3 border-2 rounded-xl text-left font-medium hover:bg-blue-50";
+            b.onclick = () => {
+                clearInterval(timer);
+                const allB = optBox.querySelectorAll("button");
+                allB.forEach(btn => {
+                    btn.disabled = true;
+                    if(btn.textContent === q.answer) btn.classList.add("bg-green-100", "border-green-500");
+                    if(btn.textContent === opt && opt !== q.answer) btn.classList.add("bg-red-100", "border-red-500");
+                });
+                if(opt === q.answer) score++;
+                document.getElementById("next-question").classList.remove("hidden");
+            };
+            optBox.appendChild(b);
           });
-
-          quizFeedback.textContent = "";
-          nextQuestionButton.classList.add("hidden");
+          document.getElementById("next-question").classList.add("hidden");
           startTimer();
         }
 
         function startTimer() {
-          let timeLeft = 30;
-          timerDisplay.textContent = timeLeft + "s";
-          timerDisplay.classList.remove("timer-low");
+          let left = 30;
+          const display = document.getElementById("timer-display");
+          display.textContent = left + "s"; display.classList.remove("timer-low");
           clearInterval(timer);
           timer = setInterval(() => {
-            timeLeft--;
-            timerDisplay.textContent = timeLeft + "s";
-            if (timeLeft <= 5) timerDisplay.classList.add("timer-low");
-            if (timeLeft <= 0) {
-              clearInterval(timer);
-              checkAnswer(null);
-            }
+            left--; display.textContent = left + "s";
+            if(left <= 5) display.classList.add("timer-low");
+            if(left <= 0) { clearInterval(timer); showNext(); }
           }, 1000);
         }
 
-        function checkAnswer(selected) {
-          clearInterval(timer);
-          const q = questions[currentQuestionIndex];
-          const btns = optionsElement.querySelectorAll("button");
-          btns.forEach((b) => {
-            b.disabled = true;
-            if (b.textContent === q.answer) {
-              b.innerHTML +=
-                ' <i class="fas fa-check-circle float-right text-green-600"></i>';
-              b.classList.add("border-green-500", "bg-green-50");
-            }
-            if (b.textContent === selected && selected !== q.answer) {
-              b.innerHTML +=
-                ' <i class="fas fa-times-circle float-right text-red-600"></i>';
-              b.classList.add("border-red-500", "bg-red-50");
-            }
-          });
-          if (selected === q.answer) {
-            score++;
-            quizFeedback.textContent = "Correct!";
-            quizFeedback.className =
-              "mt-4 text-center font-bold text-green-500";
-          } else {
-            quizFeedback.textContent = `Wrong! Answer: ${q.answer}`;
-            quizFeedback.className = "mt-4 text-center font-bold text-red-500";
-          }
-          nextQuestionButton.classList.remove("hidden");
+        document.getElementById("next-question").onclick = showNext;
+        function showNext() {
+            currentIdx++;
+            if(currentIdx < questions.length) showQuestion();
+            else finishQuiz();
         }
 
-        nextQuestionButton.addEventListener("click", () => {
-          currentQuestionIndex++;
-          if (currentQuestionIndex < questions.length) showQuestion();
-          else showResult();
-        });
-
-        function showResult() {
-          progressBar.style.width = "100%";
-          quizScreen.classList.add("hidden");
-          resultScreen.classList.remove("hidden");
-
-          const percent = (score / questions.length) * 100;
-          const medalContainer = document.getElementById("medal-container");
-          const highMsg = document.getElementById("high-score-msg");
-
-          let medal = '<i class="fas fa-star text-gray-300 medal-icon"></i>',
-            msg = "Keep Trying!";
-          if (percent === 100) {
-            medal = '<i class="fas fa-medal medal-icon gold"></i>';
-            msg = "Genius!";
-          } else if (percent >= 80) {
-            medal = '<i class="fas fa-medal medal-icon silver"></i>';
-            msg = "Excellent!";
-          } else if (percent >= 50) {
-            medal = '<i class="fas fa-medal medal-icon bronze"></i>';
-            msg = "Good Job!";
-          }
-
-          medalContainer.innerHTML = medal;
-          resultText.innerHTML = `${msg}<br><span class="text-2xl font-bold">${score} / ${questions.length}</span>`;
-
-          const key = `high_${currentStandard}_${currentSubject}`;
-          if (score > (localStorage.getItem(key) || 0)) {
-            localStorage.setItem(key, score);
-            highMsg.classList.remove("hidden");
-          } else {
-            highMsg.classList.add("hidden");
-          }
+        async function finishQuiz() {
+          quizScreen.classList.add("hidden"); resultScreen.classList.remove("hidden");
+          const per = (score/questions.length)*100;
+          let m = per < 50 ? "bronze" : per < 80 ? "silver" : "gold";
+          document.getElementById("medal-container").innerHTML = `<i class="fas fa-medal medal-icon ${m}"></i>`;
+          document.getElementById("result-text").innerHTML = `Score: ${score}/${questions.length}`;
+          await addDoc(collection(db, "quiz_results"), { name: auth.currentUser.displayName, score, total: questions.length, at: serverTimestamp() });
         }
 
-        restartQuizButton.addEventListener("click", () => {
-          resultScreen.classList.add("hidden");
-          selectionScreen.classList.remove("hidden");
-          standardSelect.value = "";
-          subjectSelect.value = "";
-          selectionFeedback.textContent = "";
-        });
+        document.getElementById("restart-quiz").onclick = () => location.reload();
 
-        standardSelect.addEventListener("change", () => {
-          const selectedStd = standardSelect.value;
-          subjectSelect.innerHTML = '<option value="">Select Subject</option>';
-
-          if (selectedStd && quizData[selectedStd]) {
-            Object.keys(quizData[selectedStd]).forEach((subject) => {
-              const opt = document.createElement("option");
-              opt.value = subject;
-              opt.textContent = subject;
-              subjectSelect.appendChild(opt);
-            });
-          }
-        });
+        // Excel Export
+        window.exportToExcel = async () => {
+          const snap = await getDocs(collection(db, "quiz_results"));
+          const data = snap.docs.map(d => ({ ...d.data(), at: d.data().at?.toDate().toLocaleString() }));
+          const ws = XLSX.utils.json_to_sheet(data);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Results");
+          XLSX.writeFile(wb, "Results.xlsx");
+        };
       });
     </script>
   </body>
