@@ -18,96 +18,125 @@
       .medal-icon { font-size: 4rem; margin-bottom: 1rem; display: inline-block; animation: bounce 1s ease infinite; }
       @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
       .gold { color: #ffd700; } .silver { color: #c0c0c0; } .bronze { color: #cd7f32; }
+      .review-card { border-left: 4px solid #3b82f6; padding: 10px; margin-bottom: 10px; background: #f8fafc; border-radius: 0 8px 8px 0; }
     </style>
   </head>
   <body class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('images/Quiz Background.jpg')">
-    <div class="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md mx-4 my-10">
-      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Roshan Academy</h1>
+    <div class="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md mx-4 my-10 border-t-4 border-blue-600">
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 tracking-tight">Roshan Academy</h1>
 
       <div id="auth-screen" class="space-y-4">
-        <input type="text" id="auth-name" placeholder="Full Name" class="w-full p-3 border rounded-lg" />
-        <input type="email" id="auth-email" placeholder="Email" class="w-full p-3 border rounded-lg" />
-        <input type="password" id="auth-password" placeholder="Password" class="w-full p-3 border rounded-lg" />
-        <div class="flex gap-3">
-          <button id="login-btn" class="flex-1 bg-blue-600 text-white p-3 rounded-lg font-bold">Login</button>
-          <button id="signup-btn" class="flex-1 bg-gray-200 text-gray-700 p-3 rounded-lg font-bold">Register</button>
+        <input type="text" id="auth-name" placeholder="Full Name" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
+        <input type="email" id="auth-email" placeholder="Email" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
+        <input type="password" id="auth-password" placeholder="Password (Min 6 chars)" class="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-400 outline-none" />
+        <div class="flex gap-3 pt-2">
+          <button id="login-btn" class="flex-1 bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Login</button>
+          <button id="signup-btn" class="flex-1 bg-gray-200 text-gray-700 p-3 rounded-lg font-bold hover:bg-gray-300 transition">Register</button>
         </div>
-        <p id="auth-message" class="text-red-500 text-sm text-center"></p>
       </div>
 
       <div id="selection-screen" class="hidden space-y-4">
         <div class="flex justify-between items-center">
           <span id="welcome-user" class="text-sm font-bold text-blue-600"></span>
-          <button id="logout-btn" class="text-sm text-red-500 font-bold"><i class="fas fa-sign-out-alt"></i> Logout</button>
+          <button id="logout-btn" class="text-sm text-red-500 font-bold hover:underline"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </div>
-        <select id="standard" class="w-full p-3 border rounded-lg">
-          <option value="">Select Standard</option>
-          <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th Standard</option>`);</script>
-        </select>
-        <input type="text" id="subject-input" placeholder="Enter Subject (e.g. Science)" class="w-full p-3 border rounded-lg" />
-        <button id="start-quiz" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold uppercase">Start Quiz</button>
+        
+        <div class="flex border-b">
+            <button id="tab-quiz" class="flex-1 py-2 font-bold border-b-2 border-blue-600 text-blue-600 transition">Take Quiz</button>
+            <button id="tab-leaderboard" class="flex-1 py-2 font-bold text-gray-400 transition hover:text-gray-600">Leaderboard</button>
+        </div>
+
+        <div id="quiz-tab-content" class="space-y-4">
+            <select id="standard" class="w-full p-3 border rounded-lg">
+                <option value="">Select Standard</option>
+                <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th Standard</option>`);</script>
+            </select>
+            <input type="text" id="subject-input" placeholder="Enter Subject (e.g. science)" class="w-full p-3 border rounded-lg" />
+            <button id="start-quiz" class="w-full bg-blue-600 text-white p-4 rounded-lg font-bold uppercase shadow-lg hover:scale-[1.02] active:scale-95 transition">Start Quiz</button>
+        </div>
+
+        <div id="leaderboard-tab-content" class="hidden space-y-2 max-h-60 overflow-y-auto">
+            <p class="text-[10px] text-center text-gray-400 uppercase tracking-widest">Global Top 10 Performers</p>
+            <div id="leaderboard-list" class="space-y-2"></div>
+        </div>
         
         <div id="admin-link-container" class="hidden pt-4 border-t text-center">
           <button id="go-to-admin" class="text-xs text-gray-400 hover:text-blue-500 transition"><i class="fas fa-lock"></i> Admin Panel</button>
         </div>
       </div>
 
-      <div id="admin-screen" class="hidden space-y-6">
+      <div id="admin-screen" class="hidden space-y-5">
         <div class="flex justify-between items-center">
-          <h2 class="text-xl font-bold">Admin Panel</h2>
-          <button id="admin-back" class="text-blue-600 text-sm">Back</button>
+          <h2 class="text-xl font-bold text-gray-700">Admin Panel</h2>
+          <button id="admin-back" class="text-blue-600 text-sm font-bold"><i class="fas fa-chevron-left"></i> Back</button>
         </div>
         
-        <div class="bg-gray-100 p-4 rounded-lg">
-          <button onclick="exportToExcel()" class="w-full bg-green-600 text-white p-3 rounded-lg font-bold"><i class="fas fa-file-excel"></i> Export Results</button>
+        <div class="bg-gray-100 p-3 rounded-lg flex gap-2">
+          <button onclick="exportToExcel()" class="flex-1 bg-green-600 text-white p-2 rounded font-bold text-xs"><i class="fas fa-file-excel"></i> Export</button>
+          <button id="clear-results-btn" class="flex-1 bg-red-600 text-white p-2 rounded font-bold text-xs"><i class="fas fa-trash"></i> Reset Week</button>
         </div>
 
         <div class="space-y-2 border-t pt-4">
-          <h3 class="font-bold text-gray-700">Add New Question</h3>
-          <select id="q-std" class="w-full p-2 border rounded">
-            <option value="">Select Standard</option>
-            <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th Standard</option>`);</script>
-          </select>
-          <input type="text" id="q-sub" placeholder="Subject (e.g. science)" class="w-full p-2 border rounded" />
-          <input type="text" id="q-text" placeholder="Question Text" class="w-full p-2 border rounded" />
+          <h3 class="font-bold text-gray-700 text-sm">Add Question</h3>
           <div class="grid grid-cols-2 gap-2">
-            <input type="text" id="q-o1" placeholder="Opt 1" class="p-2 border rounded" />
-            <input type="text" id="q-o2" placeholder="Opt 2" class="p-2 border rounded" />
-            <input type="text" id="q-o3" placeholder="Opt 3" class="p-2 border rounded" />
-            <input type="text" id="q-o4" placeholder="Opt 4" class="p-2 border rounded" />
+            <select id="q-std" class="p-2 border rounded text-sm">
+                <option value="">Standard</option>
+                <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th</option>`);</script>
+            </select>
+            <select id="q-type" class="p-2 border rounded text-sm bg-yellow-50">
+                <option value="mcq">MCQ</option>
+                <option value="short">Short Answer</option>
+            </select>
           </div>
-          <input type="text" id="q-ans" placeholder="Correct Answer (Match exact text)" class="w-full p-2 border rounded bg-blue-50" />
-          <button id="add-q-btn" class="w-full bg-blue-600 text-white p-2 rounded font-bold">Save Question</button>
+          <input type="text" id="q-sub" placeholder="Subject (e.g. science)" class="w-full p-2 border rounded text-sm" />
+          <input type="text" id="q-text" placeholder="Question Text" class="w-full p-2 border rounded text-sm" />
+          
+          <div id="mcq-inputs" class="grid grid-cols-2 gap-2">
+            <input type="text" id="q-o1" placeholder="Opt 1" class="p-2 border rounded text-sm" />
+            <input type="text" id="q-o2" placeholder="Opt 2" class="p-2 border rounded text-sm" />
+            <input type="text" id="q-o3" placeholder="Opt 3" class="p-2 border rounded text-sm" />
+            <input type="text" id="q-o4" placeholder="Opt 4" class="p-2 border rounded text-sm" />
+          </div>
+
+          <input type="text" id="q-ans" placeholder="Correct Answer" class="w-full p-2 border rounded bg-blue-50 text-sm font-bold" />
+          <input type="text" id="q-explain" placeholder="Explanation (Optional)" class="w-full p-2 border rounded text-xs italic" />
+          <button id="add-q-btn" class="w-full bg-blue-600 text-white p-3 rounded font-bold hover:bg-blue-700 transition shadow">Save Question</button>
         </div>
 
         <div class="border-t pt-4">
-            <h3 class="font-bold text-gray-700 mb-2">Existing Questions</h3>
-            <div id="admin-q-list" class="max-h-60 overflow-y-auto space-y-2 text-xs"></div>
+            <h3 class="font-bold text-gray-700 mb-2 text-sm">Question List</h3>
+            <div id="admin-q-list" class="max-h-40 overflow-y-auto space-y-2 text-[10px]"></div>
         </div>
       </div>
 
       <div id="quiz-screen" class="hidden">
         <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
         <div class="flex justify-between items-center mb-4">
-          <h2 id="question" class="text-lg font-bold text-gray-800"></h2>
+          <h2 id="question" class="text-lg font-bold text-gray-800 leading-tight"></h2>
           <span id="timer-display" class="text-2xl font-bold">30s</span>
         </div>
         <div id="options" class="grid gap-3"></div>
-        <button id="next-question" class="mt-6 w-full bg-blue-600 text-white p-3 rounded-lg font-bold hidden">Next</button>
+        <button id="next-question" class="mt-6 w-full bg-blue-600 text-white p-3 rounded-lg font-bold hidden hover:bg-blue-700 transition">Next Question <i class="fas fa-arrow-right ml-2"></i></button>
       </div>
 
       <div id="result-screen" class="hidden text-center">
         <div id="medal-container"></div>
-        <h2 class="text-2xl font-bold mb-2">Finished!</h2>
-        <p id="result-text" class="text-lg mb-6"></p>
-        <button id="restart-quiz" class="w-full bg-blue-600 text-white p-3 rounded-lg font-bold">Home</button>
+        <h2 class="text-2xl font-bold mb-1">Session Complete!</h2>
+        <p id="result-text" class="text-xl mb-4 font-bold text-blue-600"></p>
+        
+        <div id="review-section" class="text-left border-t pt-4 mt-4 max-h-64 overflow-y-auto">
+            <h3 class="font-bold mb-2 text-gray-600 uppercase text-xs tracking-widest">Review Answers</h3>
+            <div id="review-list" class="text-sm"></div>
+        </div>
+        
+        <button id="restart-quiz" class="mt-6 w-full bg-blue-600 text-white p-4 rounded-lg font-bold shadow-lg">Back to Home</button>
       </div>
     </div>
 
     <script type="module">
       import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
       import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, updateProfile } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-      import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+      import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
       const firebaseConfig = {
         apiKey: "AIzaSyCnY-wJzabkuvFD5v1eUpZyY_Gx0FPv4zI",
@@ -121,123 +150,104 @@
       const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
       const auth = getAuth(app);
       const db = getFirestore(app);
+      
+      // AUTHORIZED ADMINS
       const ADMIN_EMAILS = ["rkjha7281@gmail.com", "rkjha.roshan9@gmail.com"];
 
       document.addEventListener("DOMContentLoaded", () => {
-        const authScreen = document.getElementById("auth-screen"), selectionScreen = document.getElementById("selection-screen");
-        const adminScreen = document.getElementById("admin-screen"), quizScreen = document.getElementById("quiz-screen"), resultScreen = document.getElementById("result-screen");
-        let questions = [], currentIdx = 0, score = 0, timer;
-
-       onAuthStateChanged(auth, (user) => {
-  if (user) {
-    authScreen.classList.add("hidden"); 
-    selectionScreen.classList.remove("hidden");
-    document.getElementById("welcome-user").textContent = "Hi, " + user.displayName;
-
-    // Use .includes() to check if the user's email is in your admin list
-    if (ADMIN_EMAILS.includes(user.email)) {
-        document.getElementById("admin-link-container").classList.remove("hidden");
-        loadAdminQuestions();
-    }
-  } else {
-    authScreen.classList.remove("hidden"); 
-    selectionScreen.classList.add("hidden");
-    adminScreen.classList.add("hidden");
-  }
-});
-
-        // Login & Signup
-        document.getElementById("login-btn").onclick = async () => {
-          try { await signInWithEmailAndPassword(auth, document.getElementById("auth-email").value, document.getElementById("auth-password").value); }
-          catch(e) { alert("Login Failed: Check password"); }
+        const showScreen = (id) => {
+            ['auth-screen', 'selection-screen', 'admin-screen', 'quiz-screen', 'result-screen'].forEach(s => {
+                document.getElementById(s).classList.toggle("hidden", s !== id);
+            });
         };
-
-        document.getElementById("signup-btn").onclick = async () => {
-          const name = document.getElementById("auth-name").value;
-          try {
-            const res = await createUserWithEmailAndPassword(auth, document.getElementById("auth-email").value, document.getElementById("auth-password").value);
-            await updateProfile(res.user, { displayName: name });
-            location.reload();
-          } catch(e) { alert(e.message); }
-        };
-
-        document.getElementById("logout-btn").onclick = () => auth.signOut();
         
-        // Navigation
-        document.getElementById("go-to-admin").onclick = () => { 
-          selectionScreen.classList.add("hidden"); 
-          adminScreen.classList.remove("hidden"); 
-        };
-        document.getElementById("admin-back").onclick = () => { 
-          adminScreen.classList.add("hidden"); 
-          selectionScreen.classList.remove("hidden"); 
+        let questions = [], currentIdx = 0, score = 0, timer, quizLog = [];
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            showScreen('selection-screen');
+            document.getElementById("welcome-user").textContent = "Hi, " + user.displayName;
+            document.getElementById("admin-link-container").classList.toggle("hidden", !ADMIN_EMAILS.includes(user.email));
+            loadLeaderboard();
+          } else {
+            showScreen('auth-screen');
+          }
+        });
+
+        // Tab Switching Logic
+        document.getElementById("tab-quiz").onclick = () => {
+            document.getElementById("quiz-tab-content").classList.remove("hidden");
+            document.getElementById("leaderboard-tab-content").classList.add("hidden");
+            document.getElementById("tab-quiz").className = "flex-1 py-2 font-bold border-b-2 border-blue-600 text-blue-600";
+            document.getElementById("tab-leaderboard").className = "flex-1 py-2 font-bold text-gray-400";
         };
 
-        // ADMIN: Add Question
+        document.getElementById("tab-leaderboard").onclick = () => {
+            document.getElementById("quiz-tab-content").classList.add("hidden");
+            document.getElementById("leaderboard-tab-content").classList.remove("hidden");
+            document.getElementById("tab-quiz").className = "flex-1 py-2 font-bold text-gray-400";
+            document.getElementById("tab-leaderboard").className = "flex-1 py-2 font-bold border-b-2 border-blue-600 text-blue-600";
+            loadLeaderboard();
+        };
+
+        // NAVIGATION
+        document.getElementById("go-to-admin").onclick = () => { showScreen('admin-screen'); loadAdminQuestions(); };
+        document.getElementById("admin-back").onclick = () => showScreen('selection-screen');
+
+        // ADMIN: TYPE TOGGLE
+        document.getElementById("q-type").onchange = (e) => {
+            document.getElementById("mcq-inputs").classList.toggle("hidden", e.target.value === "short");
+        };
+
+        // ADMIN: ADD QUESTION
         document.getElementById("add-q-btn").onclick = async () => {
-          const std = document.getElementById("q-std").value;
-          const sub = document.getElementById("q-sub").value.toLowerCase().trim();
-          const question = document.getElementById("q-text").value;
-          const options = [
-            document.getElementById("q-o1").value, 
-            document.getElementById("q-o2").value, 
-            document.getElementById("q-o3").value, 
-            document.getElementById("q-o4").value
-          ];
-          const answer = document.getElementById("q-ans").value;
-
-          if(!std || !sub || !question || !answer) return alert("Please fill all fields");
-
-          const qData = { std, sub, question, options, answer, createdAt: serverTimestamp() };
-          
+          const type = document.getElementById("q-type").value;
+          const qData = {
+            std: document.getElementById("q-std").value,
+            sub: document.getElementById("q-sub").value.toLowerCase().trim(),
+            question: document.getElementById("q-text").value,
+            type: type,
+            options: type === 'mcq' ? [
+                document.getElementById("q-o1").value, 
+                document.getElementById("q-o2").value, 
+                document.getElementById("q-o3").value, 
+                document.getElementById("q-o4").value
+            ] : [],
+            answer: document.getElementById("q-ans").value.trim(),
+            explain: document.getElementById("q-explain").value,
+            createdAt: serverTimestamp()
+          };
+          if(!qData.std || !qData.sub || !qData.question || !qData.answer) return alert("Fill all fields");
           await addDoc(collection(db, "questions"), qData);
           alert("Question Saved!");
-          
-          // Clear inputs
-          document.getElementById("q-text").value = "";
-          document.getElementById("q-o1").value = "";
-          document.getElementById("q-o2").value = "";
-          document.getElementById("q-o3").value = "";
-          document.getElementById("q-o4").value = "";
-          document.getElementById("q-ans").value = "";
-          
           loadAdminQuestions();
+          ["q-text", "q-o1", "q-o2", "q-o3", "q-o4", "q-ans", "q-explain"].forEach(id => document.getElementById(id).value = "");
         };
 
-        async function loadAdminQuestions() {
-            const snap = await getDocs(collection(db, "questions"));
-            const list = document.getElementById("admin-q-list");
-            list.innerHTML = "";
-            snap.forEach(qDoc => {
-                const d = qDoc.data();
-                const item = document.createElement("div");
-                item.className = "flex justify-between items-center bg-white p-2 border rounded shadow-sm";
-                item.innerHTML = `<span>[Std ${d.std} - ${d.sub}] ${d.question.substring(0,20)}...</span><button class="text-red-500 font-bold" data-id="${qDoc.id}">Del</button>`;
-                item.querySelector("button").onclick = async (e) => {
-                    if(confirm("Delete this question?")) {
-                      await deleteDoc(doc(db, "questions", e.target.dataset.id));
-                      loadAdminQuestions();
-                    }
-                };
-                list.appendChild(item);
-            });
-        }
+        // ADMIN: CLEAR ALL RESULTS (LEADERBOARD)
+        document.getElementById("clear-results-btn").onclick = async () => {
+            if(confirm("DANGER: This will delete ALL student scores and reset the leaderboard. Proceed?")) {
+                const snap = await getDocs(collection(db, "quiz_results"));
+                await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "quiz_results", d.id))));
+                alert("Leaderboard Cleared!");
+                loadLeaderboard();
+            }
+        };
 
-        // QUIZ LOGIC
+        // QUIZ START
         document.getElementById("start-quiz").onclick = async () => {
           const std = document.getElementById("standard").value;
           const sub = document.getElementById("subject-input").value.toLowerCase().trim();
-          if(!std || !sub) return alert("Select Std and Subject");
+          if(!std || !sub) return alert("Select Standard and Subject");
           
           const qry = query(collection(db, "questions"), where("std", "==", std), where("sub", "==", sub));
           const snap = await getDocs(qry);
-          questions = [];
-          snap.forEach(d => questions.push(d.data()));
+          questions = snap.docs.map(d => d.data());
           
-          if(questions.length === 0) return alert("No questions found for this subject.");
+          if(questions.length === 0) return alert("No questions found for this category.");
           
-          currentIdx = 0; score = 0;
-          selectionScreen.classList.add("hidden"); quizScreen.classList.remove("hidden");
+          currentIdx = 0; score = 0; quizLog = [];
+          showScreen('quiz-screen');
           showQuestion();
         };
 
@@ -247,23 +257,36 @@
           document.getElementById("question").textContent = q.question;
           const optBox = document.getElementById("options");
           optBox.innerHTML = "";
-          q.options.forEach(opt => {
-            const b = document.createElement("button");
-            b.textContent = opt;
-            b.className = "w-full p-3 border-2 rounded-xl text-left font-medium hover:bg-blue-50 transition";
-            b.onclick = () => {
-                clearInterval(timer);
-                const allB = optBox.querySelectorAll("button");
-                allB.forEach(btn => {
-                    btn.disabled = true;
-                    if(btn.textContent === q.answer) btn.classList.add("bg-green-100", "border-green-500");
-                    if(btn.textContent === opt && opt !== q.answer) btn.classList.add("bg-red-100", "border-red-500");
-                });
-                if(opt === q.answer) score++;
-                document.getElementById("next-question").classList.remove("hidden");
-            };
-            optBox.appendChild(b);
-          });
+
+          const recordAnswer = (userAns) => {
+            clearInterval(timer);
+            const isCorrect = userAns.toLowerCase() === q.answer.toLowerCase();
+            if(isCorrect) score++;
+            quizLog.push({ q: q.question, user: userAns, correct: q.answer, explain: q.explain, isCorrect });
+            document.getElementById("next-question").classList.remove("hidden");
+          };
+
+          if (q.type === 'short') {
+            const input = document.createElement("input");
+            input.placeholder = "Type your answer here...";
+            input.className = "w-full p-3 border-2 rounded-xl mb-2 focus:border-blue-500 outline-none";
+            const btn = document.createElement("button");
+            btn.textContent = "Submit Answer";
+            btn.className = "w-full bg-blue-600 text-white p-3 rounded-lg font-bold";
+            btn.onclick = () => { input.disabled = true; btn.classList.add("hidden"); recordAnswer(input.value.trim()); };
+            optBox.append(input, btn);
+          } else {
+            q.options.forEach(opt => {
+              const b = document.createElement("button");
+              b.textContent = opt;
+              b.className = "w-full p-3 border-2 rounded-xl text-left font-medium hover:bg-blue-50 transition";
+              b.onclick = () => { 
+                  Array.from(optBox.children).forEach(btn => btn.disabled = true);
+                  recordAnswer(opt); 
+              };
+              optBox.appendChild(b);
+            });
+          }
           document.getElementById("next-question").classList.add("hidden");
           startTimer();
         }
@@ -276,36 +299,94 @@
           timer = setInterval(() => {
             left--; display.textContent = left + "s";
             if(left <= 5) display.classList.add("timer-low");
-            if(left <= 0) { clearInterval(timer); showNext(); }
+            if(left <= 0) { clearInterval(timer); recordAnswer("NO ANSWER"); }
           }, 1000);
         }
 
-        document.getElementById("next-question").onclick = showNext;
-        function showNext() {
-            currentIdx++;
-            if(currentIdx < questions.length) showQuestion();
-            else finishQuiz();
-        }
+        document.getElementById("next-question").onclick = () => {
+          currentIdx++;
+          if(currentIdx < questions.length) showQuestion();
+          else finishQuiz();
+        };
 
         async function finishQuiz() {
-          quizScreen.classList.add("hidden"); resultScreen.classList.remove("hidden");
+          showScreen('result-screen');
           const per = (score/questions.length)*100;
-          let m = per < 50 ? "bronze" : per < 80 ? "silver" : "gold";
-          document.getElementById("medal-container").innerHTML = `<i class="fas fa-medal medal-icon ${m}"></i>`;
-          document.getElementById("result-text").innerHTML = `Score: ${score}/${questions.length}`;
-          await addDoc(collection(db, "quiz_results"), { name: auth.currentUser.displayName, score, total: questions.length, at: serverTimestamp() });
+          document.getElementById("medal-container").innerHTML = `<i class="fas fa-medal medal-icon ${per < 50 ? 'bronze' : per < 80 ? 'silver' : 'gold'}"></i>`;
+          document.getElementById("result-text").textContent = `Final Score: ${score} / ${questions.length}`;
+          
+          const list = document.getElementById("review-list");
+          list.innerHTML = quizLog.map(item => `
+            <div class="review-card ${item.isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}">
+                <p class="font-bold">Q: ${item.q}</p>
+                <p class="${item.isCorrect ? 'text-green-700' : 'text-red-700'}">You answered: ${item.user}</p>
+                ${!item.isCorrect ? `<p class="text-blue-700 font-medium">Correct: ${item.correct}</p>` : ''}
+                ${item.explain ? `<p class="text-xs text-gray-500 mt-2 italic font-serif">Note: ${item.explain}</p>` : ''}
+            </div>
+          `).join('');
+
+          await addDoc(collection(db, "quiz_results"), { 
+              name: auth.currentUser.displayName, 
+              score, 
+              total: questions.length, 
+              at: serverTimestamp() 
+          });
         }
 
-        document.getElementById("restart-quiz").onclick = () => location.reload();
+        async function loadLeaderboard() {
+            try {
+                const qry = query(collection(db, "quiz_results"), orderBy("score", "desc"), limit(10));
+                const snap = await getDocs(qry);
+                const list = document.getElementById("leaderboard-list");
+                list.innerHTML = snap.docs.length ? snap.docs.map((d, i) => `
+                    <div class="flex justify-between items-center p-3 bg-white border rounded shadow-sm">
+                        <span class="font-bold text-gray-600">#${i+1} ${d.data().name}</span>
+                        <span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-bold">${d.data().score}/${d.data().total}</span>
+                    </div>
+                `).join('') : '<p class="text-center text-gray-400 py-4 text-xs italic">No results yet. Be the first!</p>';
+            } catch(e) { console.error("Leaderboard error:", e); }
+        }
 
-        // Excel Export
+        async function loadAdminQuestions() {
+            const snap = await getDocs(collection(db, "questions"));
+            const list = document.getElementById("admin-q-list");
+            list.innerHTML = snap.docs.map(qDoc => `
+                <div class="flex justify-between items-center bg-white p-2 border rounded">
+                    <span>[${qDoc.data().type.toUpperCase()}] ${qDoc.data().question.substring(0,25)}...</span>
+                    <button class="text-red-500 p-1" onclick="deleteQuestion('${qDoc.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
+        }
+
+        // Auth Logic
+        document.getElementById("login-btn").onclick = async () => {
+            const email = document.getElementById("auth-email").value;
+            const pass = document.getElementById("auth-password").value;
+            try { await signInWithEmailAndPassword(auth, email, pass); } catch(e) { alert("Login failed: " + e.message); }
+        };
+
+        document.getElementById("signup-btn").onclick = async () => {
+            const name = document.getElementById("auth-name").value;
+            const email = document.getElementById("auth-email").value;
+            const pass = document.getElementById("auth-password").value;
+            try {
+                const res = await createUserWithEmailAndPassword(auth, email, pass);
+                await updateProfile(res.user, { displayName: name });
+                location.reload();
+            } catch(e) { alert(e.message); }
+        };
+
+        document.getElementById("logout-btn").onclick = () => auth.signOut();
+        document.getElementById("restart-quiz").onclick = () => location.reload();
+        
+        // Export Logic
         window.exportToExcel = async () => {
           const snap = await getDocs(collection(db, "quiz_results"));
           const data = snap.docs.map(d => ({ ...d.data(), at: d.data().at?.toDate().toLocaleString() }));
           const ws = XLSX.utils.json_to_sheet(data);
           const wb = XLSX.utils.book_new();
           XLSX.utils.book_append_sheet(wb, ws, "Results");
-          XLSX.writeFile(wb, "Quiz_Results.xlsx");
+          XLSX.writeFile(wb, "Roshan_Academy_Results.xlsx");
         };
       });
     </script>
