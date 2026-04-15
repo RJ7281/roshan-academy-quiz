@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Roshan Academy Quiz App</title>
-    <link rel="icon" type="image/x-icon" href="Faviocn.ico" />
+    <link rel="icon" type="image/x-icon" href="images/Faviocn.ico" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -20,7 +20,7 @@
       .gold { color: #ffd700; } .silver { color: #c0c0c0; } .bronze { color: #cd7f32; }
     </style>
   </head>
-  <body class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('Quiz Background.jpg')">
+  <body class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('images/Quiz Background.jpg')">
     <div class="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md mx-4 my-10">
       <h1 class="text-3xl font-bold text-center text-gray-800 mb-6">Roshan Academy</h1>
 
@@ -64,8 +64,11 @@
 
         <div class="space-y-2 border-t pt-4">
           <h3 class="font-bold text-gray-700">Add New Question</h3>
-          <select id="q-std" class="w-full p-2 border rounded"><option value="10">10th Std</option></select>
-          <input type="text" id="q-sub" placeholder="Subject" class="w-full p-2 border rounded" />
+          <select id="q-std" class="w-full p-2 border rounded">
+            <option value="">Select Standard</option>
+            <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th Standard</option>`);</script>
+          </select>
+          <input type="text" id="q-sub" placeholder="Subject (e.g. science)" class="w-full p-2 border rounded" />
           <input type="text" id="q-text" placeholder="Question Text" class="w-full p-2 border rounded" />
           <div class="grid grid-cols-2 gap-2">
             <input type="text" id="q-o1" placeholder="Opt 1" class="p-2 border rounded" />
@@ -118,30 +121,35 @@
       const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
       const auth = getAuth(app);
       const db = getFirestore(app);
-      const ADMIN_EMAIL = "rkjha7281@gmail.com";
+      const ADMIN_EMAILS = ["rkjha7281@gmail.com", "rkjha.roshan9@gmail.com"];
 
       document.addEventListener("DOMContentLoaded", () => {
         const authScreen = document.getElementById("auth-screen"), selectionScreen = document.getElementById("selection-screen");
         const adminScreen = document.getElementById("admin-screen"), quizScreen = document.getElementById("quiz-screen"), resultScreen = document.getElementById("result-screen");
         let questions = [], currentIdx = 0, score = 0, timer;
 
-        onAuthStateChanged(auth, (user) => {
-          if (user) {
-            authScreen.classList.add("hidden"); selectionScreen.classList.remove("hidden");
-            document.getElementById("welcome-user").textContent = "Hi, " + user.displayName;
-            if (user.email === ADMIN_EMAIL) {
-                document.getElementById("admin-link-container").classList.remove("hidden");
-                loadAdminQuestions();
-            }
-          } else {
-            authScreen.classList.remove("hidden"); selectionScreen.classList.add("hidden");
-          }
-        });
+       onAuthStateChanged(auth, (user) => {
+  if (user) {
+    authScreen.classList.add("hidden"); 
+    selectionScreen.classList.remove("hidden");
+    document.getElementById("welcome-user").textContent = "Hi, " + user.displayName;
+
+    // Use .includes() to check if the user's email is in your admin list
+    if (ADMIN_EMAILS.includes(user.email)) {
+        document.getElementById("admin-link-container").classList.remove("hidden");
+        loadAdminQuestions();
+    }
+  } else {
+    authScreen.classList.remove("hidden"); 
+    selectionScreen.classList.add("hidden");
+    adminScreen.classList.add("hidden");
+  }
+});
 
         // Login & Signup
         document.getElementById("login-btn").onclick = async () => {
           try { await signInWithEmailAndPassword(auth, document.getElementById("auth-email").value, document.getElementById("auth-password").value); }
-          catch(e) { alert("Login Failed"); }
+          catch(e) { alert("Login Failed: Check password"); }
         };
 
         document.getElementById("signup-btn").onclick = async () => {
@@ -154,21 +162,45 @@
         };
 
         document.getElementById("logout-btn").onclick = () => auth.signOut();
-        document.getElementById("go-to-admin").onclick = () => { selectionScreen.classList.add("hidden"); adminScreen.classList.remove("hidden"); };
-        document.getElementById("admin-back").onclick = () => { adminScreen.classList.add("hidden"); selectionScreen.classList.remove("hidden"); };
+        
+        // Navigation
+        document.getElementById("go-to-admin").onclick = () => { 
+          selectionScreen.classList.add("hidden"); 
+          adminScreen.classList.remove("hidden"); 
+        };
+        document.getElementById("admin-back").onclick = () => { 
+          adminScreen.classList.add("hidden"); 
+          selectionScreen.classList.remove("hidden"); 
+        };
 
         // ADMIN: Add Question
         document.getElementById("add-q-btn").onclick = async () => {
-          const qData = {
-            std: document.getElementById("q-std").value,
-            sub: document.getElementById("q-sub").value.toLowerCase().trim(),
-            question: document.getElementById("q-text").value,
-            options: [document.getElementById("q-o1").value, document.getElementById("q-o2").value, document.getElementById("q-o3").value, document.getElementById("q-o4").value],
-            answer: document.getElementById("q-ans").value,
-            createdAt: serverTimestamp()
-          };
+          const std = document.getElementById("q-std").value;
+          const sub = document.getElementById("q-sub").value.toLowerCase().trim();
+          const question = document.getElementById("q-text").value;
+          const options = [
+            document.getElementById("q-o1").value, 
+            document.getElementById("q-o2").value, 
+            document.getElementById("q-o3").value, 
+            document.getElementById("q-o4").value
+          ];
+          const answer = document.getElementById("q-ans").value;
+
+          if(!std || !sub || !question || !answer) return alert("Please fill all fields");
+
+          const qData = { std, sub, question, options, answer, createdAt: serverTimestamp() };
+          
           await addDoc(collection(db, "questions"), qData);
           alert("Question Saved!");
+          
+          // Clear inputs
+          document.getElementById("q-text").value = "";
+          document.getElementById("q-o1").value = "";
+          document.getElementById("q-o2").value = "";
+          document.getElementById("q-o3").value = "";
+          document.getElementById("q-o4").value = "";
+          document.getElementById("q-ans").value = "";
+          
           loadAdminQuestions();
         };
 
@@ -179,11 +211,13 @@
             snap.forEach(qDoc => {
                 const d = qDoc.data();
                 const item = document.createElement("div");
-                item.className = "flex justify-between items-center bg-white p-2 border rounded";
-                item.innerHTML = `<span>${d.question.substring(0,30)}...</span><button class="text-red-500" data-id="${qDoc.id}">Delete</button>`;
+                item.className = "flex justify-between items-center bg-white p-2 border rounded shadow-sm";
+                item.innerHTML = `<span>[Std ${d.std} - ${d.sub}] ${d.question.substring(0,20)}...</span><button class="text-red-500 font-bold" data-id="${qDoc.id}">Del</button>`;
                 item.querySelector("button").onclick = async (e) => {
-                    await deleteDoc(doc(db, "questions", e.target.dataset.id));
-                    loadAdminQuestions();
+                    if(confirm("Delete this question?")) {
+                      await deleteDoc(doc(db, "questions", e.target.dataset.id));
+                      loadAdminQuestions();
+                    }
                 };
                 list.appendChild(item);
             });
@@ -216,7 +250,7 @@
           q.options.forEach(opt => {
             const b = document.createElement("button");
             b.textContent = opt;
-            b.className = "w-full p-3 border-2 rounded-xl text-left font-medium hover:bg-blue-50";
+            b.className = "w-full p-3 border-2 rounded-xl text-left font-medium hover:bg-blue-50 transition";
             b.onclick = () => {
                 clearInterval(timer);
                 const allB = optBox.querySelectorAll("button");
@@ -271,7 +305,7 @@
           const ws = XLSX.utils.json_to_sheet(data);
           const wb = XLSX.utils.book_new();
           XLSX.utils.book_append_sheet(wb, ws, "Results");
-          XLSX.writeFile(wb, "Results.xlsx");
+          XLSX.writeFile(wb, "Quiz_Results.xlsx");
         };
       });
     </script>
