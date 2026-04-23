@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Roshan Academy - Professional Quiz & Chapter Tests</title>
+    <link rel="icon" type="image/x-icon" href="images/Faviocn.ico" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      .hidden { display: none !important; }
+      .progress-container { width: 100%; background-color: #e0e0e0; border-radius: 8px; margin-bottom: 1rem; }
+      .progress-bar { height: 10px; width: 0%; background-color: #3b82f6; border-radius: 8px; transition: width 0.3s ease-in-out; }
+      #timer-display { font-weight: bold; }
+      .timer-low { color: #ef4444; animation: pulse 1s infinite; }
+      @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+      .medal-icon { font-size: 4rem; margin-bottom: 1rem; display: inline-block; animation: bounce 1s ease infinite; }
+      @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+      .gold { color: #ffd700; } .silver { color: #c0c0c0; } .bronze { color: #cd7f32; }
+      .review-card { border-left: 4px solid #3b82f6; padding: 10px; margin-bottom: 10px; background: #f8fafc; border-radius: 0 8px 8px 0; }
+      .btn-pressed { background-color: #1e40af !important; color: white !important; transform: scale(0.95); transition: all 0.1s ease; }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center bg-cover bg-center bg-no-repeat bg-fixed" style="background-image: url('images/Quiz Background.jpg')">
+    <div class="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md mx-4 my-10 border-t-4 border-blue-600">
+      <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 tracking-tight">Roshan Academy</h1>
+
+      <div id="auth-screen" class="space-y-4">
+        <input type="text" id="auth-name" placeholder="Full Name" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400" />
+        <input type="email" id="auth-email" placeholder="Email" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400" />
+        <input type="password" id="auth-password" placeholder="Password" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400" />
+        <div class="flex gap-3 pt-2">
+          <button id="login-btn" class="flex-1 bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Login</button>
+          <button id="signup-btn" class="flex-1 bg-gray-200 text-gray-700 p-3 rounded-lg font-bold hover:bg-gray-300 transition">Register</button>
+        </div>
+      </div>
+
+      <div id="selection-screen" class="hidden space-y-4">
+        <div class="flex justify-between items-center">
+          <span id="welcome-user" class="text-sm font-bold text-blue-600"></span>
+          <button id="logout-btn" class="text-sm text-red-500 font-bold hover:underline"><i class="fas fa-sign-out-alt"></i> Logout</button>
+        </div>
+        
+        <div class="flex border-b">
+            <button id="tab-quiz" class="flex-1 py-2 font-bold border-b-2 border-blue-600 text-blue-600">Quiz</button>
+            <button id="tab-leaderboard" class="flex-1 py-2 font-bold text-gray-400">Leaderboard</button>
+        </div>
+
+        <div id="quiz-tab-content" class="space-y-4">
+            <select id="standard" class="w-full p-3 border rounded-lg">
+                <option value="">Select Standard</option>
+                <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th Standard</option>`);</script>
+            </select>
+            <select id="subject-select" class="w-full p-3 border rounded-lg">
+                <option value="">Select Subject</option>
+            </select>
+            <select id="chapter-select" class="w-full p-3 border rounded-lg hidden">
+                <option value="">Full Subject Test</option>
+            </select>
+            <button id="start-quiz" class="w-full bg-blue-600 text-white p-4 rounded-lg font-bold uppercase shadow-lg active:scale-95 transition">Start Quiz</button>
+        </div>
+
+        <div id="leaderboard-tab-content" class="hidden space-y-2 max-h-60 overflow-y-auto">
+            <div id="leaderboard-list" class="space-y-2"></div>
+        </div>
+        
+        <div id="admin-link-container" class="hidden pt-4 border-t text-center">
+          <button id="go-to-admin" class="text-xs text-gray-400 hover:text-blue-500 transition"><i class="fas fa-lock"></i> Admin Panel</button>
+        </div>
+      </div>
+
+      <div id="admin-screen" class="hidden space-y-5">
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-bold">Admin Panel</h2>
+          <button id="admin-back" class="text-blue-600 text-sm font-bold">Back</button>
+        </div>
+        
+        <div class="bg-gray-100 p-3 rounded-lg flex gap-2 text-[10px]">
+          <button id="export-btn" class="flex-1 bg-green-600 text-white p-2 rounded">Export</button>
+          <button id="clear-results-btn" class="flex-1 bg-red-600 text-white p-2 rounded">Reset Week</button>
+        </div>
+
+        <div class="space-y-2 border-t pt-4">
+          <div class="grid grid-cols-2 gap-2">
+            <select id="q-std" class="p-2 border rounded text-sm">
+                <option value="">Std</option>
+                <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th</option>`);</script>
+            </select>
+            <select id="q-type" class="p-2 border rounded text-sm bg-yellow-50">
+                <option value="mcq">MCQ</option>
+                <option value="short">Short Answer</option>
+            </select>
+          </div>
+          
+          <select id="q-sub-select" class="w-full p-2 border rounded text-sm bg-blue-50">
+                <option value="">Existing Sub</option>
+          </select>
+          <input type="text" id="q-sub-new" placeholder="OR New Subject" class="w-full p-2 border rounded text-sm" />
+          <input type="text" id="q-chapter" placeholder="Chapter Name" class="w-full p-2 border rounded text-sm" />
+          
+          <input type="text" id="q-text" placeholder="Question" class="w-full p-2 border rounded text-sm" />
+          <div id="mcq-inputs" class="grid grid-cols-2 gap-2">
+            <input type="text" id="q-o1" placeholder="Opt 1" class="p-2 border rounded text-sm" />
+            <input type="text" id="q-o2" placeholder="Opt 2" class="p-2 border rounded text-sm" />
+            <input type="text" id="q-o3" placeholder="Opt 3" class="p-2 border rounded text-sm" />
+            <input type="text" id="q-o4" placeholder="Opt 4" class="p-2 border rounded text-sm" />
+          </div>
+
+          <input type="text" id="q-ans" placeholder="Correct Answer" class="w-full p-2 border rounded bg-blue-50 font-bold text-sm" />
+          <input type="text" id="q-explain" placeholder="Explanation" class="w-full p-2 border rounded text-xs italic" />
+          <button id="add-q-btn" class="w-full bg-blue-600 text-white p-3 rounded font-bold transition">Save Question</button>
+        </div>
+        <div id="admin-q-list" class="max-h-40 overflow-y-auto space-y-2 text-[10px]"></div>
+      </div>
+
+      <div id="quiz-screen" class="hidden">
+        <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
+        <div class="flex justify-between items-center mb-4">
+          <h2 id="question" class="text-lg font-bold text-gray-800"></h2>
+          <span id="timer-display" class="text-2xl font-bold">30s</span>
+        </div>
+        <div id="options" class="grid gap-3"></div>
+        <button id="next-question" class="mt-6 w-full bg-blue-600 text-white p-3 rounded-lg font-bold hidden">Next</button>
+      </div>
+
+      <div id="result-screen" class="hidden text-center">
+        <div id="medal-container"></div>
+        <h2 id="result-text" class="text-xl mb-4 font-bold text-blue-600"></h2>
+        <div id="review-list" class="text-left border-t pt-4 mt-4 max-h-64 overflow-y-auto text-sm"></div>
+        <button id="restart-quiz" class="mt-6 w-full bg-blue-600 text-white p-4 rounded-lg font-bold shadow-lg">Back to Home</button>
+      </div>
+    </div>
+
+    <script type="module">
+      import { initializeApp, getApp, getApps } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+      import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, updateProfile, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+      import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, query, where, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+      const firebaseConfig = {
+        apiKey: "AIzaSyCnY-wJzabkuvFD5v1eUpZyY_Gx0FPv4zI",
+        authDomain: "roshan-academy.firebaseapp.com",
+        projectId: "roshan-academy",
+        storageBucket: "roshan-academy.firebasestorage.app",
+        messagingSenderId: "644092003401",
+        appId: "1:644092003401:web:f195aab704a3280ecb6b98",
+      };
+
+      const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const ADMIN_EMAILS = ["rkjha7281@gmail.com", "rkjha.roshan9@gmail.com"];
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const showScreen = (id) => ['auth-screen', 'selection-screen', 'admin-screen', 'quiz-screen', 'result-screen'].forEach(s => document.getElementById(s).classList.toggle("hidden", s !== id));
+        let questions = [], currentIdx = 0, score = 0, timer, quizLog = [];
+
+        onAuthStateChanged(auth, (user) => {
+          if (user) {
+            showScreen('selection-screen');
+            document.getElementById("welcome-user").textContent = "Hi, " + user.displayName;
+            // Admin Check Fix
+            const email = user.email.toLowerCase().trim();
+            document.getElementById("admin-link-container").classList.toggle("hidden", !ADMIN_EMAILS.includes(email));
+            refreshSubjectLists();
+            loadLeaderboard();
+          } else {
+            showScreen('auth-screen');
+          }
+        });
+
+        async function refreshSubjectLists() {
+            const snap = await getDocs(collection(db, "questions"));
+            const subjects = new Set();
+            snap.forEach(d => { if(d.data().sub) subjects.add(d.data().sub); });
+            const html = '<option value="">Select Subject</option>' + Array.from(subjects).sort().map(s => `<option value="${s}">${s.toUpperCase()}</option>`).join('');
+            document.getElementById("subject-select").innerHTML = html;
+            document.getElementById("q-sub-select").innerHTML = html;
+        }
+
+        document.getElementById("subject-select").onchange = async (e) => {
+            const sub = e.target.value;
+            const std = document.getElementById("standard").value;
+            const chapBox = document.getElementById("chapter-select");
+            if(!sub || !std) return;
+            const qry = query(collection(db, "questions"), where("std", "==", std), where("sub", "==", sub));
+            const snap = await getDocs(qry);
+            const chapters = new Set();
+            snap.forEach(d => { if(d.data().chapter) chapters.add(d.data().chapter); });
+            if(chapters.size > 0) {
+                chapBox.classList.remove("hidden");
+                chapBox.innerHTML = '<option value="">Full Subject Test</option>' + Array.from(chapters).sort().map(c => `<option value="${c}">${c}</option>`).join('');
+            } else { chapBox.classList.add("hidden"); }
+        };
+
+        // ADMIN: ADD QUESTION
+        document.getElementById("add-q-btn").onclick = async () => {
+          const type = document.getElementById("q-type").value;
+          const finalSub = document.getElementById("q-sub-new").value.trim().toUpperCase() || document.getElementById("q-sub-select").value;
+          if(!finalSub || !document.getElementById("q-text").value || !document.getElementById("q-ans").value) return alert("Fill all fields");
+
+          await addDoc(collection(db, "questions"), {
+            std: document.getElementById("q-std").value,
+            sub: finalSub,
+            chapter: document.getElementById("q-chapter").value.trim().toUpperCase(),
+            type: type,
+            question: document.getElementById("q-text").value,
+            options: type === 'mcq' ? [document.getElementById("q-o1").value, document.getElementById("q-o2").value, document.getElementById("q-o3").value, document.getElementById("q-o4").value] : [],
+            answer: document.getElementById("q-ans").value.trim(),
+            explain: document.getElementById("q-explain").value,
+            createdAt: serverTimestamp()
+          });
+          alert("Saved!");
+          refreshSubjectLists(); loadAdminQuestions();
+          ["q-text", "q-o1", "q-o2", "q-o3", "q-o4", "q-ans", "q-explain", "q-sub-new", "q-chapter"].forEach(id => document.getElementById(id).value = "");
+        };
+
+        // QUIZ START
+        document.getElementById("start-quiz").onclick = async () => {
+          const std = document.getElementById("standard").value, sub = document.getElementById("subject-select").value, chap = document.getElementById("chapter-select").value;
+          if(!std || !sub) return alert("Select Standard and Subject");
+          
+          let qry = (chap && chap !== "") 
+            ? query(collection(db, "questions"), where("std", "==", std), where("sub", "==", sub), where("chapter", "==", chap)) 
+            : query(collection(db, "questions"), where("std", "==", std), where("sub", "==", sub));
+          
+          const snap = await getDocs(qry);
+          questions = snap.docs.map(d => d.data());
+          if(questions.length === 0) return alert("No questions found.");
+          currentIdx = 0; score = 0; quizLog = [];
+          showScreen('quiz-screen'); showQuestion();
+        };
+
+        function showQuestion() {
+          const q = questions[currentIdx];
+          document.getElementById("progress-bar").style.width = (currentIdx / questions.length) * 100 + "%";
+          document.getElementById("question").textContent = q.question;
+          const optBox = document.getElementById("options"); optBox.innerHTML = "";
+
+          const recordAnswer = (userAns) => {
+            clearInterval(timer);
+            const isCorrect = userAns.trim().toLowerCase() === q.answer.trim().toLowerCase();
+            if(isCorrect) score++;
+            quizLog.push({ q: q.question, user: userAns, correct: q.answer, explain: q.explain, isCorrect });
+            document.getElementById("next-question").classList.remove("hidden");
+          };
+
+          if (q.type === 'short') {
+            const input = document.createElement("input"); input.className = "w-full p-3 border-2 rounded-xl mb-2 outline-none";
+            const btn = document.createElement("button"); btn.textContent = "Submit"; btn.className = "w-full bg-blue-600 text-white p-3 rounded-lg font-bold active:scale-95";
+            btn.onclick = () => { btn.classList.add("btn-pressed"); input.disabled = true; recordAnswer(input.value); };
+            optBox.append(input, btn);
+          } else {
+            q.options.forEach(opt => {
+              const b = document.createElement("button"); b.textContent = opt; b.className = "w-full p-3 border-2 rounded-xl text-left hover:bg-blue-50 active:scale-95";
+              b.onclick = () => { b.classList.add("btn-pressed"); Array.from(optBox.children).forEach(btn => btn.disabled = true); recordAnswer(opt); };
+              optBox.appendChild(b);
+            });
+          }
+          document.getElementById("next-question").classList.add("hidden");
+          startTimer(recordAnswer);
+        }
+
+        function startTimer(recordFunc) {
+          let left = 30; document.getElementById("timer-display").textContent = left + "s";
+          clearInterval(timer);
+          timer = setInterval(() => {
+            left--; document.getElementById("timer-display").textContent = left + "s";
+            if(left <= 5) document.getElementById("timer-display").classList.add("timer-low");
+            if(left <= 0) { clearInterval(timer); recordFunc("TIMEOUT"); }
+          }, 1000);
+        }
+
+        document.getElementById("next-question").onclick = () => {
+          currentIdx++; if(currentIdx < questions.length) showQuestion(); else finishQuiz();
+        };
+
+        async function finishQuiz() {
+          showScreen('result-screen');
+          const per = (score/questions.length)*100;
+          document.getElementById("medal-container").innerHTML = `<i class="fas fa-medal medal-icon ${per < 50 ? 'bronze' : per < 80 ? 'silver' : 'gold'}"></i>`;
+          document.getElementById("result-text").textContent = `Score: ${score} / ${questions.length}`;
+          document.getElementById("review-list").innerHTML = quizLog.map(item => `
+            <div class="review-card ${item.isCorrect ? 'border-green-500 bg-green-50' : 'border-red-500 bg-red-50'}">
+                <p><b>Q:</b> ${item.q}</p>
+                <p>You: ${item.user} | <span class="text-blue-600 font-bold">Correct: ${item.correct}</span></p>
+                ${item.explain ? `<p class="text-[10px] italic mt-1">Note: ${item.explain}</p>` : ''}
+            </div>`).join('');
+          await addDoc(collection(db, "quiz_results"), { name: auth.currentUser.displayName, score, total: questions.length, at: serverTimestamp() });
+        }
+
+        // TABS, EXPORT & AUTH
+        document.getElementById("tab-quiz").onclick = () => {
+            document.getElementById("quiz-tab-content").classList.remove("hidden"); document.getElementById("leaderboard-tab-content").classList.add("hidden");
+        };
+        document.getElementById("tab-leaderboard").onclick = () => {
+            document.getElementById("quiz-tab-content").classList.add("hidden"); document.getElementById("leaderboard-tab-content").classList.remove("hidden"); loadLeaderboard();
+        };
+        document.getElementById("go-to-admin").onclick = () => { showScreen('admin-screen'); loadAdminQuestions(); };
+        document.getElementById("admin-back").onclick = () => showScreen('selection-screen');
+
+        document.getElementById("login-btn").onclick = async () => {
+            try { await signInWithEmailAndPassword(auth, document.getElementById("auth-email").value, document.getElementById("auth-password").value); } catch(e) { alert("Login Fail"); }
+        };
+        document.getElementById("signup-btn").onclick = async () => {
+            const name = document.getElementById("auth-name").value;
+            try { const res = await createUserWithEmailAndPassword(auth, document.getElementById("auth-email").value, document.getElementById("auth-password").value);
+                await updateProfile(res.user, { displayName: name }); location.reload(); } catch(e) { alert(e.message); }
+        };
+        document.getElementById("logout-btn").onclick = () => signOut(auth);
+        document.getElementById("restart-quiz").onclick = () => location.reload();
+
+        document.getElementById("export-btn").onclick = async () => {
+          const snap = await getDocs(collection(db, "quiz_results"));
+          const data = snap.docs.map(d => ({ ...d.data(), at: d.data().at?.toDate().toLocaleString() }));
+          const ws = XLSX.utils.json_to_sheet(data);
+          const wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, "Results");
+          XLSX.writeFile(wb, "Roshan_Results.xlsx");
+        };
+
+        document.getElementById("clear-results-btn").onclick = async () => {
+            if(confirm("Delete all leaderboard results?")) {
+                const snap = await getDocs(collection(db, "quiz_results"));
+                await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "quiz_results", d.id))));
+                alert("Cleared!"); loadLeaderboard();
+            }
+        };
+
+        async function loadLeaderboard() {
+            const qry = query(collection(db, "quiz_results"), orderBy("score", "desc"), limit(10));
+            const snap = await getDocs(qry);
+            document.getElementById("leaderboard-list").innerHTML = snap.docs.map((d, i) => `<div class="flex justify-between p-2 bg-white border rounded text-xs font-bold"><span>#${i+1} ${d.data().name}</span><span>${d.data().score}/${d.data().total}</span></div>`).join('');
+        }
+
+        async function loadAdminQuestions() {
+            const snap = await getDocs(collection(db, "questions"));
+            const list = document.getElementById("admin-q-list");
+            list.innerHTML = "";
+            snap.forEach(qDoc => {
+                const data = qDoc.data();
+                const div = document.createElement("div");
+                div.className = "flex justify-between p-2 bg-white border rounded items-center";
+                div.innerHTML = `<span>[${data.sub}] ${data.question.substring(0,15)}...</span>`;
+                const delBtn = document.createElement("button");
+                delBtn.className = "text-red-500 font-bold";
+                delBtn.textContent = "Del";
+                delBtn.onclick = async () => {
+                    if(confirm("Delete question?")) {
+                        await deleteDoc(doc(db, "questions", qDoc.id));
+                        loadAdminQuestions();
+                    }
+                };
+                div.appendChild(delBtn);
+                list.appendChild(div);
+            });
+        }
+      });
+    </script>
+  </body>
+</html>
