@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Roshan Academy - Professional Quiz & Chapter Tests</title>
+    <title>Roshan Academy - Smart Chapter Management</title>
     <link rel="icon" type="image/x-icon" href="Faviocn.ico" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -15,9 +15,6 @@
       #timer-display { font-weight: bold; }
       .timer-low { color: #ef4444; animation: pulse 1s infinite; }
       @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-      .medal-icon { font-size: 4rem; margin-bottom: 1rem; display: inline-block; animation: bounce 1s ease infinite; }
-      @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-      .gold { color: #ffd700; } .silver { color: #c0c0c0; } .bronze { color: #cd7f32; }
       .review-card { border-left: 4px solid #3b82f6; padding: 10px; margin-bottom: 10px; background: #f8fafc; border-radius: 0 8px 8px 0; }
       .btn-pressed { background-color: #1e40af !important; color: white !important; transform: scale(0.95); transition: all 0.1s ease; }
     </style>
@@ -26,16 +23,18 @@
     <div class="bg-white/95 backdrop-blur-sm p-8 rounded-xl shadow-2xl w-full max-w-md mx-4 my-10 border-t-4 border-blue-600">
       <h1 class="text-3xl font-bold text-center text-gray-800 mb-6 tracking-tight">Roshan Academy</h1>
 
+      <!-- AUTH SCREEN -->
       <div id="auth-screen" class="space-y-4">
-        <input type="text" id="auth-name" placeholder="Full Name" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400" />
-        <input type="email" id="auth-email" placeholder="Email" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400" />
-        <input type="password" id="auth-password" placeholder="Password" class="w-full p-3 border rounded-lg outline-none focus:ring-2 focus:ring-blue-400" />
+        <input type="text" id="auth-name" placeholder="Full Name" class="w-full p-3 border rounded-lg outline-none" />
+        <input type="email" id="auth-email" placeholder="Email" class="w-full p-3 border rounded-lg outline-none" />
+        <input type="password" id="auth-password" placeholder="Password" class="w-full p-3 border rounded-lg outline-none" />
         <div class="flex gap-3 pt-2">
           <button id="login-btn" class="flex-1 bg-blue-600 text-white p-3 rounded-lg font-bold hover:bg-blue-700 transition">Login</button>
           <button id="signup-btn" class="flex-1 bg-gray-200 text-gray-700 p-3 rounded-lg font-bold hover:bg-gray-300 transition">Register</button>
         </div>
       </div>
 
+      <!-- SELECTION SCREEN -->
       <div id="selection-screen" class="hidden space-y-4">
         <div class="flex justify-between items-center">
           <span id="welcome-user" class="text-sm font-bold text-blue-600"></span>
@@ -70,15 +69,16 @@
         </div>
       </div>
 
+      <!-- ADMIN SCREEN -->
       <div id="admin-screen" class="hidden space-y-5">
         <div class="flex justify-between items-center">
           <h2 class="text-xl font-bold">Admin Panel</h2>
           <button id="admin-back" class="text-blue-600 text-sm font-bold">Back</button>
         </div>
         
-        <div class="bg-gray-100 p-3 rounded-lg flex gap-2 text-[10px]">
-          <button id="export-btn" class="flex-1 bg-green-600 text-white p-2 rounded">Export</button>
-          <button id="clear-results-btn" class="flex-1 bg-red-600 text-white p-2 rounded">Reset Week</button>
+        <div class="bg-gray-100 p-3 rounded-lg flex gap-2">
+          <button id="export-btn" class="flex-1 bg-green-600 text-white p-2 rounded text-[10px]">Export</button>
+          <button id="clear-results-btn" class="flex-1 bg-red-600 text-white p-2 rounded text-[10px]">Reset Week</button>
         </div>
 
         <div class="space-y-2 border-t pt-4">
@@ -87,19 +87,27 @@
                 <option value="">Std</option>
                 <script>for(let i=1; i<=10; i++) document.write(`<option value="${i}">${i}th</option>`);</script>
             </select>
-            <select id="q-type" class="p-2 border rounded text-sm bg-yellow-50">
+            <select id="q-type" class="p-2 border rounded text-sm">
                 <option value="mcq">MCQ</option>
                 <option value="short">Short Answer</option>
             </select>
           </div>
           
-          <select id="q-sub-select" class="w-full p-2 border rounded text-sm bg-blue-50">
-                <option value="">Existing Sub</option>
-          </select>
-          <input type="text" id="q-sub-new" placeholder="OR New Subject" class="w-full p-2 border rounded text-sm" />
-          <input type="text" id="q-chapter" placeholder="Chapter Name" class="w-full p-2 border rounded text-sm" />
+          <div class="space-y-1">
+            <select id="q-sub-select" class="w-full p-2 border rounded text-sm bg-blue-50">
+                <option value="">Existing Subject</option>
+            </select>
+            <input type="text" id="q-sub-new" placeholder="OR New Subject Name" class="w-full p-2 border rounded text-sm" />
+          </div>
+
+          <div class="space-y-1">
+            <select id="q-chap-select" class="w-full p-2 border rounded text-sm bg-green-50">
+                <option value="">Existing Chapter</option>
+            </select>
+            <input type="text" id="q-chap-new" placeholder="OR New Chapter Name" class="w-full p-2 border rounded text-sm" />
+          </div>
           
-          <input type="text" id="q-text" placeholder="Question" class="w-full p-2 border rounded text-sm" />
+          <input type="text" id="q-text" placeholder="Question Text" class="w-full p-2 border rounded text-sm" />
           <div id="mcq-inputs" class="grid grid-cols-2 gap-2">
             <input type="text" id="q-o1" placeholder="Opt 1" class="p-2 border rounded text-sm" />
             <input type="text" id="q-o2" placeholder="Opt 2" class="p-2 border rounded text-sm" />
@@ -108,12 +116,13 @@
           </div>
 
           <input type="text" id="q-ans" placeholder="Correct Answer" class="w-full p-2 border rounded bg-blue-50 font-bold text-sm" />
-          <input type="text" id="q-explain" placeholder="Explanation" class="w-full p-2 border rounded text-xs italic" />
+          <input type="text" id="q-explain" placeholder="Explanation (Optional)" class="w-full p-2 border rounded text-xs italic" />
           <button id="add-q-btn" class="w-full bg-blue-600 text-white p-3 rounded font-bold transition">Save Question</button>
         </div>
-        <div id="admin-q-list" class="max-h-40 overflow-y-auto space-y-2 text-[10px]"></div>
+        <div id="admin-q-list" class="max-h-40 overflow-y-auto space-y-2 text-[10px] mt-4"></div>
       </div>
 
+      <!-- QUIZ SCREEN -->
       <div id="quiz-screen" class="hidden">
         <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
         <div class="flex justify-between items-center mb-4">
@@ -124,11 +133,12 @@
         <button id="next-question" class="mt-6 w-full bg-blue-600 text-white p-3 rounded-lg font-bold hidden">Next</button>
       </div>
 
+      <!-- RESULT SCREEN -->
       <div id="result-screen" class="hidden text-center">
         <div id="medal-container"></div>
         <h2 id="result-text" class="text-xl mb-4 font-bold text-blue-600"></h2>
         <div id="review-list" class="text-left border-t pt-4 mt-4 max-h-64 overflow-y-auto text-sm"></div>
-        <button id="restart-quiz" class="mt-6 w-full bg-blue-600 text-white p-4 rounded-lg font-bold shadow-lg">Back to Home</button>
+        <button id="restart-quiz" class="mt-6 w-full bg-blue-600 text-white p-4 rounded-lg font-bold">Back to Home</button>
       </div>
     </div>
 
@@ -159,23 +169,32 @@
           if (user) {
             showScreen('selection-screen');
             document.getElementById("welcome-user").textContent = "Hi, " + user.displayName;
-            // Admin Check Fix
             const email = user.email.toLowerCase().trim();
             document.getElementById("admin-link-container").classList.toggle("hidden", !ADMIN_EMAILS.includes(email));
-            refreshSubjectLists();
+            refreshSmartLists();
             loadLeaderboard();
           } else {
             showScreen('auth-screen');
           }
         });
 
-        async function refreshSubjectLists() {
+        async function refreshSmartLists() {
             const snap = await getDocs(collection(db, "questions"));
             const subjects = new Set();
-            snap.forEach(d => { if(d.data().sub) subjects.add(d.data().sub); });
-            const html = '<option value="">Select Subject</option>' + Array.from(subjects).sort().map(s => `<option value="${s}">${s.toUpperCase()}</option>`).join('');
-            document.getElementById("subject-select").innerHTML = html;
-            document.getElementById("q-sub-select").innerHTML = html;
+            const chapters = new Set();
+            
+            snap.forEach(d => {
+                const data = d.data();
+                if(data.sub) subjects.add(data.sub.toUpperCase());
+                if(data.chapter) chapters.add(data.chapter.toUpperCase());
+            });
+
+            const subHtml = '<option value="">Select Subject</option>' + Array.from(subjects).sort().map(s => `<option value="${s}">${s}</option>`).join('');
+            document.getElementById("subject-select").innerHTML = subHtml;
+            document.getElementById("q-sub-select").innerHTML = subHtml;
+
+            const chapHtml = '<option value="">Existing Chapter</option>' + Array.from(chapters).sort().map(c => `<option value="${c}">${c}</option>`).join('');
+            document.getElementById("q-chap-select").innerHTML = chapHtml;
         }
 
         document.getElementById("subject-select").onchange = async (e) => {
@@ -195,24 +214,25 @@
 
         // ADMIN: ADD QUESTION
         document.getElementById("add-q-btn").onclick = async () => {
-          const type = document.getElementById("q-type").value;
           const finalSub = document.getElementById("q-sub-new").value.trim().toUpperCase() || document.getElementById("q-sub-select").value;
-          if(!finalSub || !document.getElementById("q-text").value || !document.getElementById("q-ans").value) return alert("Fill all fields");
+          const finalChap = document.getElementById("q-chap-new").value.trim().toUpperCase() || document.getElementById("q-chap-select").value;
+          
+          if(!finalSub || !finalChap || !document.getElementById("q-text").value) return alert("Fill Subject, Chapter and Question");
 
           await addDoc(collection(db, "questions"), {
             std: document.getElementById("q-std").value,
             sub: finalSub,
-            chapter: document.getElementById("q-chapter").value.trim().toUpperCase(),
-            type: type,
+            chapter: finalChap,
+            type: document.getElementById("q-type").value,
             question: document.getElementById("q-text").value,
-            options: type === 'mcq' ? [document.getElementById("q-o1").value, document.getElementById("q-o2").value, document.getElementById("q-o3").value, document.getElementById("q-o4").value] : [],
+            options: [document.getElementById("q-o1").value, document.getElementById("q-o2").value, document.getElementById("q-o3").value, document.getElementById("q-o4").value],
             answer: document.getElementById("q-ans").value.trim(),
             explain: document.getElementById("q-explain").value,
             createdAt: serverTimestamp()
           });
           alert("Saved!");
-          refreshSubjectLists(); loadAdminQuestions();
-          ["q-text", "q-o1", "q-o2", "q-o3", "q-o4", "q-ans", "q-explain", "q-sub-new", "q-chapter"].forEach(id => document.getElementById(id).value = "");
+          refreshSmartLists(); loadAdminQuestions();
+          ["q-text", "q-o1", "q-o2", "q-o3", "q-o4", "q-ans", "q-explain", "q-sub-new", "q-chap-new"].forEach(id => document.getElementById(id).value = "");
         };
 
         // QUIZ START
@@ -289,7 +309,6 @@
           await addDoc(collection(db, "quiz_results"), { name: auth.currentUser.displayName, score, total: questions.length, at: serverTimestamp() });
         }
 
-        // TABS, EXPORT & AUTH
         document.getElementById("tab-quiz").onclick = () => {
             document.getElementById("quiz-tab-content").classList.remove("hidden"); document.getElementById("leaderboard-tab-content").classList.add("hidden");
         };
@@ -320,7 +339,7 @@
         };
 
         document.getElementById("clear-results-btn").onclick = async () => {
-            if(confirm("Delete all leaderboard results?")) {
+            if(confirm("Reset leaderboard?")) {
                 const snap = await getDocs(collection(db, "quiz_results"));
                 await Promise.all(snap.docs.map(d => deleteDoc(doc(db, "quiz_results", d.id))));
                 alert("Cleared!"); loadLeaderboard();
